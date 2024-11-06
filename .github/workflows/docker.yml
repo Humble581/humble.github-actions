@@ -1,0 +1,38 @@
+name: Docker Workflow
+
+on:
+  - push
+  
+jobs: 
+  docker_build: 
+    runs-on: ubuntu-latest
+    steps: 
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: List files to verify Dockerfile location
+      run: ls -l
+
+    - name: Docker Build 
+      run: docker build -f ./Dockerfile -t humble15/jeremiah-aidoo-github-actions:latest .
+
+    - name: Docker Login
+      run: |
+        echo "Humblehak@1997" | docker login --username humble15 --password-stdin
+
+    - name: Docker Publish 
+      run: docker push humble15/jeremiah-aidoo-github-actions:latest
+
+  docker_deploy:
+    needs: docker_build
+    runs-on: ubuntu-latest 
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Docker Login
+        run: |
+          echo "Humblehak@1997" | docker login --username humble15 --password-stdin
+
+      - name: Docker Run
+        run: docker run -d -p 8080:80 humble15/jeremiah-aidoo-github-actions:latest
