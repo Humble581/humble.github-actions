@@ -13,23 +13,23 @@ jobs:
     - name: Docker Build
       env:
         CONTAINER_REGISTRY: docker.io
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # Make sure this is 'humble15'
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  # Your Docker Hub password or token
         IMAGE_NAME: jeremiah-aidoo-github-actions
       run: |
-        # Build the Docker image
+        # Build the Docker image with the correct tag
         docker build -t $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest .
 
     - name: Docker Login
       env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # 'humble15'
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  # Your Docker Hub password or token
       run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
 
     - name: Docker Publish 
       env:
         CONTAINER_REGISTRY: docker.io
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # 'humble15'
         IMAGE_NAME: jeremiah-aidoo-github-actions
       run: docker push $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
 
@@ -43,8 +43,8 @@ jobs:
     - name: Docker Run
       env:
         CONTAINER_REGISTRY: docker.io
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # 'humble15'
         IMAGE_NAME: jeremiah-aidoo-github-actions
       run: |
-        # Run the container
+        # Run the container with the correct tag
         docker run -d -p 8080:80 $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
