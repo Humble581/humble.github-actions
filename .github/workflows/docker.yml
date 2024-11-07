@@ -4,65 +4,37 @@ on:
   - push
 
 jobs:
-  docker:
+  docker_build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Debug Environment Variables
-        run: |
-          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}"   # Should output 'humble15'
-          echo "CONTAINER_REGISTRY=docker.io"
-          echo "IMAGE_NAME=jeremiah-aidoo-github-actions"
-          echo "Tag will be: docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest"
+      - name: List files to verify Dockerfile location
+        run: ls -l
 
-      - name: Docker Build
-        env:
-          CONTAINER_REGISTRY: docker.io
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # 'humble15'
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  # 'Humblehak@1997'
-          IMAGE_NAME: jeremiah-aidoo-github-actions
+      - name: Docker Build 
         run: |
-          # Print the tag for debugging
-          echo "Building Docker image with tag: $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest"
-          
           # Build the Docker image with the correct tag
-          docker build -t $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest .
+          docker build -f ./Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest .
 
       - name: Docker Login
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # 'humble15'
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  # 'Humblehak@1997'
-        run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
       - name: Docker Publish
-        env:
-          CONTAINER_REGISTRY: docker.io
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # 'humble15'
-          IMAGE_NAME: jeremiah-aidoo-github-actions
-        run: |
-          # Print the tag before pushing
-          echo "Pushing Docker image with tag: $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest"
-          
-          # Push the Docker image to Docker Hub
-          docker push $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest
 
-  deploy:
-    needs: docker
+  docker_deploy:
+    needs: docker_build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Docker Run
-        env:
-          CONTAINER_REGISTRY: docker.io
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # 'humble15'
-          IMAGE_NAME: jeremiah-aidoo-github-actions
+      - name: Docker Login
         run: |
-          # Print the tag before running
-          echo "Running Docker container with tag: $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest"
-          
-          # Run the container with the correct tag
-          docker run -d -p 8080:80 $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Docker Run
+        run: docker run -d -p 8080:80 ${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest
