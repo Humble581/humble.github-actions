@@ -13,22 +13,23 @@ jobs:
     - name: Docker Build
       env:
         CONTAINER_REGISTRY: docker.io
-        DOCKER_USERNAME: humble15
-        DOCKER_PASSWORD: Humblehak@1997
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         IMAGE_NAME: jeremiah-aidoo-github-actions
       run: |
+        # Build the Docker image
         docker build -t $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest .
 
     - name: Docker Login
       env:
-        DOCKER_USERNAME: humble15
-        DOCKER_PASSWORD: Humblehak@1997
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
 
     - name: Docker Publish 
       env:
         CONTAINER_REGISTRY: docker.io
-        DOCKER_USERNAME: humble15
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         IMAGE_NAME: jeremiah-aidoo-github-actions
       run: docker push $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
 
@@ -42,7 +43,8 @@ jobs:
     - name: Docker Run
       env:
         CONTAINER_REGISTRY: docker.io
-        DOCKER_USERNAME: humble15
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         IMAGE_NAME: jeremiah-aidoo-github-actions
       run: |
+        # Run the container
         docker run -d -p 8080:80 $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
