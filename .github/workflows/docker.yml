@@ -10,9 +10,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Print environment variables for debugging
+      - name: Debug Environment Variables
         run: |
-          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}"
+          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}"   # Should output 'humble15'
           echo "CONTAINER_REGISTRY=docker.io"
           echo "IMAGE_NAME=jeremiah-aidoo-github-actions"
           echo "Tag will be: docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest"
