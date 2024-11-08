@@ -1,26 +1,50 @@
-name: Debug Docker Username
+name: Docker Workflow
 
 on:
-  push:
-    branches:
-      - main
+  - push
 
-jobs:
-  debug:
+jobs: 
+  docker: 
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-      - name: Check if DOCKER_USERNAME is set
-        run: |
-          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
-            echo "DOCKER_USERNAME is not set or is empty."
-            exit 1
-          else
-            echo "DOCKER_USERNAME is set."
-          fi
+    - name: Docker Build
+      env:
+        CONTAINER_REGISTRY: docker.io
+        DOCKER_USERNAME: humble15
+        DOCKER_PASSWORD: Humblehak@1997
+        IMAGE_NAME: jeremiah-aidoo-github-actions
+      run: |
+        docker build -t $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest .
 
-      - name: Display Docker Username (masked)
-        run: echo "Docker username is: ${{ secrets.DOCKER_USERNAME }}"
+    - name: Docker Login
+      env:
+        DOCKER_USERNAME: humble15
+        DOCKER_PASSWORD: Humblehak@1997
+      run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+
+    - name: Docker Publish 
+      env:
+        CONTAINER_REGISTRY: docker.io
+        DOCKER_USERNAME: humble15
+        IMAGE_NAME: jeremiah-aidoo-github-actions
+      run: docker push $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+
+  deploy:
+    needs: docker
+    runs-on: ubuntu-latest 
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Docker Run
+      env:
+        CONTAINER_REGISTRY: docker.io
+        DOCKER_USERNAME: humble15
+        IMAGE_NAME: jeremiah-aidoo-github-actions
+      run: |
+        docker run -d -p 8080:80 $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+
+
