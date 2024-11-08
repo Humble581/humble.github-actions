@@ -13,5 +13,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Display Docker Username
+      - name: Check if DOCKER_USERNAME is set
+        run: |
+          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
+            echo "DOCKER_USERNAME is not set or is empty."
+            exit 1
+          else
+            echo "DOCKER_USERNAME is set."
+          fi
+
+      - name: Display Docker Username (masked)
         run: echo "Docker username is: ${{ secrets.DOCKER_USERNAME }}"
