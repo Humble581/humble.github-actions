@@ -1,44 +1,17 @@
-name: Docker Workflow
+name: Debug Docker Username
 
 on:
   push:
     branches:
-      - main  # You can specify the branches that should trigger the workflow
+      - main
 
 jobs:
-  docker_build:
+  debug:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: List files to verify Dockerfile location
-        run: ls -l
-
-      - name: Docker Build
-        run: |
-          echo "Building Docker image with tag: docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest"
-          docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest .
-
-      - name: Docker Login
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
-
-      - name: Docker Publish
-        run: |
-          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest
-
-  docker_deploy:
-    needs: docker_build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Docker Login
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
-
-      - name: Docker Run
-        run: |
-          docker run -d -p 8080:80 docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest
+      - name: Display Docker Username
+        run: echo "Docker username is: ${{ secrets.DOCKER_USERNAME }}"
