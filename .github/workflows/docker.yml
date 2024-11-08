@@ -1,7 +1,9 @@
 name: Docker Workflow
 
 on:
-  - push
+  push:
+    branches:
+      - main  # You can specify the branches that should trigger the workflow
 
 jobs:
   docker_build:
@@ -13,11 +15,10 @@ jobs:
       - name: List files to verify Dockerfile location
         run: ls -l
 
-      - name: Docker Build 
+      - name: Docker Build
         run: |
-          # Build the Docker image with the correct tag
           echo "Building Docker image with tag: docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest"
-          docker build -f ./Dockerfile -t docker ${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest .
+          docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest .
 
       - name: Docker Login
         run: |
