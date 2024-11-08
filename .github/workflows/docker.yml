@@ -17,7 +17,7 @@ jobs:
         run: |
           # Build the Docker image with the correct tag
           echo "Building Docker image with tag: docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest"
-          docker build -f ./Dockerfile -t docker.io/${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest .
+          docker build -f ./Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/jeremiah-aidoo-github-actions:latest .
 
       - name: Docker Login
         run: |
