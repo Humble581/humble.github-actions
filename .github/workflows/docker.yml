@@ -1,50 +1,37 @@
+
 name: Docker Workflow
 
 on:
   - push
 
+env:
+    CONTAINER_REGISTRY: docker.io
+    IMAGE_NAME:  jeremiah-aidoo-github-actions
+
 jobs: 
-  docker: 
+  docker_build: 
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
     - name: Docker Build
-      env:
-        CONTAINER_REGISTRY: docker.io
-        DOCKER_USERNAME: humble15
-        DOCKER_PASSWORD: Humblehak@1997
-        IMAGE_NAME: jeremiah-aidoo-github-actions
-      run: |
-        docker build -t $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest .
+      run: docker build -t ${{ env.CONTAINER_REGISTRY }}/${{ vars.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest .
 
     - name: Docker Login
-      env:
-        DOCKER_USERNAME: humble15
-        DOCKER_PASSWORD: Humblehak@1997
-      run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+      run: docker login --username=${{ vars.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
 
     - name: Docker Publish 
-      env:
-        CONTAINER_REGISTRY: docker.io
-        DOCKER_USERNAME: humble15
-        IMAGE_NAME: jeremiah-aidoo-github-actions
-      run: docker push $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+      run: docker push ${{ env.CONTAINER_REGISTRY }}/${{ vars.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
-  deploy:
-    needs: docker
+  docker_deploy:
+    needs: docker_build
     runs-on: ubuntu-latest 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+        - name: Docker Login
+          run: docker login --username=${{ vars.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Docker Run
-      env:
-        CONTAINER_REGISTRY: docker.io
-        DOCKER_USERNAME: humble15
-        IMAGE_NAME: jeremiah-aidoo-github-actions
-      run: |
-        docker run -d -p 8080:80 $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+        - name: Docker Run
+          run: docker run -d -p 8080:80 ${{ env.CONTAINER_REGISTRY }}/${{ vars.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
 
